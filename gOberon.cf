@@ -1,0 +1,130 @@
+
+---------------------
+--    Oberon    --
+---------------------
+
+
+entrypoints Module;
+
+
+-- Modulo
+    Module. Module ::= "MODULE" Id ";" [Dec] Ini "END" Id ".";
+
+    {-
+    -- Importazioni
+    ImpNo. ImportLn ::= ;
+    ImpYes. ImportLn ::= "IMPORT" [Imported] ";";
+
+    separator nonempty Imported ",";
+    ImpEasy. Imported ::= Id;
+    ImpRnm. Imported ::= Id "=" Id
+    -}
+
+-- Dichiarazioni
+    terminator Dec ";";
+
+    Fun. Dec ::= "PROCEDURE" Id Par RetTp ";" [Dec] Ini "END";
+    Var. Dec ::= "VAR" [Id] ":" Type;
+    Con. Dec ::= "CONST" Id "=" Exp;
+
+    ParYes. Par ::= "(" [Sec] ")";
+    ParNo. Par ::= ;
+
+    separator nonempty Sec ";";
+    Val. Sec ::= [Id] ":" Type;
+    Res. Sec ::= "VAR" [Id] ":" Type;    
+
+    separator nonempty Id ",";
+
+    RetTpYes. RetTp ::= ":" Type;
+    RetTpNo. RetTp ::= ;
+
+    IniYes. Ini ::= "BEGIN" [Stm];
+    IniNo. Ini ::= ;
+
+-- Comandi
+    separator nonempty Stm ";";
+
+    Decl. Stm ::= Dec;
+    Ass. Stm ::= Exp ":=" Exp ;
+    Call. Stm ::= Id Arg;
+    Break. Stm ::= "EXIT";
+    Ret. Stm ::= "RETURN" RetExp;
+    GoOn. Stm ::= "CONTINUE";
+    
+    RetExpYes. RetExp ::= Exp;
+    RetExpNo. RetExp ::= ;
+	
+    ArgYes. Arg ::= "(" [Exp] ")";
+    ArgNo. Arg ::= ;
+
+    While. Stm ::= "WHILE" Exp "DO" [Stm] "END";
+    Repeat. Stm ::= "REPEAT" [Stm] "UNTIL" Exp;
+    Loop. Stm ::= "LOOP" [Stm] "END" ; -- (Exit inside)
+    Case. Stm ::= "CASE" Exp "OF" [Branch] El "END" ;
+    Branch. Branch ::= Exp ":" [Stm];
+    separator Branch "|";
+
+    If. Stm ::= "IF" Exp "THEN" [Stm] [ElIf] El "END";
+    ElIf. ElIf ::= "ELSEIF" Exp "THEN" [Stm];
+    ElYes. El ::= "ELSE" [Stm];
+    ElNo. El ::= ;
+    terminator ElIf "";  
+
+
+-- Tipi
+    Tint. Type ::= "INTEGER";
+    Tbool. Type ::= "BOOLEAN";
+    Tchar. Type ::= "CHAR";
+    Tstring. Type ::= "STRING";
+    Tarray. Type ::= "ARRAY" Exp "OF" Type;
+    --Tarray0. Type ::= "ARRAY" [Exp] Type;
+    Tpointer. Type ::= "POINTER TO" Type;
+    Treal. Type ::= "REAL";
+
+    internal Tvoid. Type ::= "Tvoid";
+
+
+-- Espressioni
+
+    Equ. Exp ::= Exp "=" Exp1;
+    Neq. Exp ::= Exp "#" Exp1;
+    Lt. Exp ::= Exp "<" Exp1;
+    LtE. Exp ::= Exp "<=" Exp1;
+    Gt. Exp ::= Exp ">" Exp1;
+    GtE. Exp ::= Exp ">=" Exp1;
+
+    Add. Exp1 ::= Exp1 "+" Exp2;
+    Sub. Exp1 ::= Exp1 "-" Exp2;
+    Or. Exp1 ::= Exp1 "OR" Exp2;
+
+    DivI. Exp2 ::= Exp2 "DIV" Exp3;
+    Mod. Exp2 ::= Exp2 "MOD" Exp3;
+    Mul. Exp2 ::= Exp2 "*" Exp3;
+    Div. Exp2 ::= Exp2 "/" Exp3;
+    And. Exp2 ::= Exp2 "&" Exp3;
+
+    Not. Exp3 ::= "~" Exp3;
+    Neg. Exp3 ::= "-" Exp3;
+    --Teq. Exp3 ::= Exp3 "IS" "(" Type ")";
+
+    Dref. Exp4 ::= Exp4 "^";
+
+    TRUE. Exp5 ::= "FALSE";
+    FALSE. Exp5 ::= "TRUE";
+    INT. Exp5 ::= Integer;
+    REAL. Exp5 ::= Double;
+    CHAR. Exp5 ::= Char;
+    STRING. Exp5 ::= String;
+    ID. Exp5 ::= Id;
+    ARR. Exp5 ::= Id "[" [Exp] "]";
+    CALL. Exp5 ::= Id "(" [Exp] ")";
+
+    separator Exp ",";
+
+    coercions Exp 5;
+
+    comment "(*" "*)";
+
+    position token Id (letter (letter | digit | '_' | '\'')* );
+
