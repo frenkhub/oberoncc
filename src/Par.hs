@@ -1,8 +1,8 @@
 {-# OPTIONS_GHC -w #-}
 {-# OPTIONS -fno-warn-incomplete-patterns -fno-warn-overlapping-patterns #-}
-module PargOberon where
-import AbsgOberon
-import LexgOberon
+module Par where
+import Abs
+import Lex
 import ErrM
 
 -- parser produced by Happy Version 1.18.9
@@ -1861,13 +1861,13 @@ happyReduction_6 (_ `HappyStk`
 	_ `HappyStk`
 	happyRest) tk
 	 = happyThen (( let
-		f (Id (_, x)) = x in
+		f (Id (_, x)) = x 
 		lc (Id ((n, c), _)) = 
 				":" ++ show n ++ ":"
 				++ show c ++ ":" 
-		if f happy_var_2 == f happy_var_7 then 
+		in if f happy_var_2 == f happy_var_7 then 
 		return $ Module happy_var_2 ((reverse happy_var_4) ++ happy_var_5) happy_var_7 
-		else fail "parser" ++ (lc happy_var_2) ++
+		else fail $ "parser" ++ (lc happy_var_2) ++
 		 	"nome modulo non corrispondente. Ci si aspetta il nome \""
 		 	++ (f happy_var_2) ++ "\", e non \"" ++ (f happy_var_2) ++ "\"\n.")
 	) (\r -> happyReturn (HappyAbsSyn9 r))
@@ -1925,15 +1925,15 @@ happyReduction_11 ((HappyAbsSyn28  happy_var_4) `HappyStk`
 			isConst (CHAR _) = True
 			isConst (STRING _) = True
 			isConst (REAL _) = True
-			lc (Id ((n, c), id)) = 
+			lc (Id ((n, c), _)) = 
 				":" ++ show n ++ ":"
 				++ show c ++ ":"
-			f (Id ((n, c), id)) = id
+			f (Id (_, id)) = id
 				 
 		in
-			if isConst happy_var_4 then return (Con happy_var_2 happy_var_4)
-			else fail "parser" ++ (lc happy_var_2) ++ 
-				" espressione non costante assegnata a\n\t\t\t\t\"" ++ (f happy_var_2 ) "\".\n")
+			if isConst happy_var_4 then return (Const happy_var_2 happy_var_4)
+			else fail $ "parser" ++ (lc happy_var_2) ++ 
+				" espressione non costante assegnata a\n\t\t\t\t\"" ++ (f happy_var_2 ) ++ "\".\n")
 	) (\r -> happyReturn (HappyAbsSyn11 r))
 
 happyReduce_12 = happySpecReduce_3  12 happyReduction_12
@@ -1953,8 +1953,7 @@ happyReduction_13  =  HappyAbsSyn12
 happyReduce_14 = happySpecReduce_1  13 happyReduction_14
 happyReduction_14 (HappyAbsSyn12  happy_var_1)
 	 =  HappyAbsSyn13
-		 ((:[]) happy_var_1
-	)
+		 ((:[]) happy_var_1)
 happyReduction_14 _  = notHappyAtAll 
 
 happyReduce_15 = happySpecReduce_3  13 happyReduction_15
@@ -2054,8 +2053,8 @@ happyReduction_26 ((HappyAbsSyn28  happy_var_3) `HappyStk`
 			isLExp (Una "^" x) = isLExp x
 			isLExp _ = False	 
 		in
-			if isLExp happy_var_1 then return Assign happy_var_1 happy_var_3
-			else fail "parser: rilevata una lexp mal formata")
+			if isLExp happy_var_1 then return $ Assign happy_var_1 happy_var_3
+			else fail $ "parser: rilevata una lexp mal formata")
 	) (\r -> happyReturn (HappyAbsSyn11 r))
 
 happyReduce_27 = happySpecReduce_2  19 happyReduction_27

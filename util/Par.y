@@ -11,7 +11,7 @@ import ErrM
 %name pModule Module
 
 -- no lexer declaration
-%monad { Err } { thenM } { returnM }
+%monad { Log [Char] }
 %tokentype { Token }
 
 %token 
@@ -91,13 +91,11 @@ Id    :: { Id} : L_Id { Id (mkPosToken $1)}
 Module :: { Module }
 Module : 'MODULE' Id ';' ListDec Ini 'END' Id '.' 
 	{% let
-		f (Id (_, x)) = x in
-		lc (Id ((n, c), _)) = 
-				":" ++ show n ++ ":"
-				++ show c ++ ":" 
-		if f $2 == f $7 then 
+		f (Id (_, x)) = x
+		lc (Id ((n, c), _)) = ":" ++ show n ++ ":" ++ show c ++ ":" 
+		in if f $2 == f $7 then 
 		return $ Module $2 ((reverse $4) ++ $5) $7 
-		else fail "parser" ++ (lc $2) ++
+		else Bad "parser" ++ (lc $2) ++
 		 	"nome modulo non corrispondente. Ci si aspetta il nome \""
 		 	++ (f $2) ++ "\", e non \"" ++ (f $2) ++ "\"\n."	} 
 
@@ -114,22 +112,19 @@ Dec : 'PROCEDURE' Id Par RetTp ';' ListDec Ini 'END' { Fun $2 $3 $4 ((reverse $6
   	{% let
 			isConst (Bin _ a b) = isConst a && isConst b
 			isConst (Una "~" a) = isConst a
-			isConst TRUE = True 
+			isConst TRUE = True
 			isConst FALSE = True
 			isConst (INT _) = True
 			isConst (CHAR _) = True
 			isConst (STRING _) = True
 			isConst (REAL _) = True
-			lc (Id ((n, c), id)) = 
-				":" ++ show n ++ ":"
-				++ show c ++ ":"
-			f (Id ((n, c), id)) = id
-				 
+			lc (Id ((n, c), _)) = ":" ++ show n ++ ":" ++ show c ++ ":"
+			f (Id (_, x)) = x
 		in
-			if isConst $4 then return (Con $2 $4)
+			if isConst $4 then return $ Const $2 $4
 			else fail "parser" ++ (lc $2) ++ 
 				" espressione non costante assegnata a
-				\"" ++ (f $2 ) "\".\n"	}
+				\"" ++ (f $2 ) ++ "\".\n"	}
 
 
 Par :: { [(Pass, Id, Type)] }
@@ -289,12 +284,6 @@ ListExp : {- empty -} { [] }
 
 
 {
-
-returnM :: a -> Err a
-returnM = return
-
-thenM :: Err a -> (a -> Err b) -> Err b
-thenM = (>>=)
 
 happyError :: [Token] -> Err a
 happyError ts =

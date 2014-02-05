@@ -2,7 +2,7 @@
 {-# LINE 3 "LexgOberon.x" #-}
 
 {-# OPTIONS -fno-warn-incomplete-patterns #-}
-module LexgOberon where
+module Lex where
 
 
 
